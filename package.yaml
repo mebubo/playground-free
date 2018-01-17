@@ -1,0 +1,12 @@
+name: playground-free
+
+dependencies:
+    - base
+    - mtl
+    - containers
+
+executables:
+    main:
+        source-dirs: src
+        main: Main.hs
+        dependencies: []
