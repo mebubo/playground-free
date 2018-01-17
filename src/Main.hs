@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Main where
 
@@ -72,6 +73,12 @@ follow key = do
     key' <- get key
     get key'
 
+p6 :: Free DSL a
+p6 = do
+    foo <- follow "foo"
+    set "bar" foo
+    end
+
 type State = M.Map String String
 
 interpretInState :: Free DSL a -> S.State State ()
@@ -87,5 +94,10 @@ interpretInState (Free (Set key value next)) = do
 interpretInState (Free End) = return ()
 interpretInState (Return a) = return ()
 
+safeInterpretInState :: (forall a. Free DSL a) -> S.State State ()
+safeInterpretInState = interpretInState
+
 main :: IO ()
-main = print $ S.execState (interpretInState p5) (M.singleton "foo" "hello")
+main = do
+    print $ S.execState (safeInterpretInState p5) (M.singleton "foo" "hello")
+    print $ S.execState (safeInterpretInState p6) (M.fromList [("foo", "baz"), ("baz", "hi")])
